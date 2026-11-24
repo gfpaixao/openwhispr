@@ -14,14 +14,12 @@ import type { LocalSetupHandOff } from "./useLocalSetupDownloads";
 /**
  * The step's plan, or null while it can't be built yet. A policy still loading
  * or errored fails closed and would offer no rows at all, so it waits for one
- * that has resolved. A guest has no stored languages: the computer's own
- * language stands in. The organisation's first required speech model replaces
+ * that has resolved. The organisation's first required speech model replaces
  * the step's own dictation pick.
  */
 export function planLocalSetup(input: {
   profile: ComputerProfile | null;
   policy: PolicyDecisionSnapshot;
-  guest: boolean;
   spokenLanguages: string[];
   requiredModelIds: string[];
 }): LocalSetupPlan | null {
@@ -29,7 +27,7 @@ export function planLocalSetup(input: {
   if (!profile || policy.status === "loading" || policy.status === "error") return null;
   return buildLocalSetupPlan({
     profile,
-    spokenLanguages: input.guest ? [] : input.spokenLanguages,
+    spokenLanguages: input.spokenLanguages,
     policy,
     requiredSpeechModelId: input.requiredModelIds.find(
       (id) => getParakeetModelInfo(id) || getWhisperModelInfo(id)

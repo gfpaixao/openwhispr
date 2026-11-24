@@ -524,7 +524,7 @@ class ParakeetWsServer {
     return this._transcribeOffline(samplesBuffer, sampleRate, signal);
   }
 
-  _transcribeOffline(samplesBuffer, sampleRate, signal) {
+  _transcribeOffline(samplesBuffer, sampleRate, signal, retryHandshake = true) {
     const timeoutMs = computeTranscriptionTimeoutMs(
       samplesBuffer.length / FLOAT32_BYTES_PER_SAMPLE / sampleRate
     );
@@ -536,7 +536,9 @@ class ParakeetWsServer {
       }
 
       const startTime = Date.now();
+      const serverProcess = this.process;
       let result = "";
+      let opened = false;
 
       const timeout = setTimeout(() => {
         try {
@@ -559,6 +561,7 @@ class ParakeetWsServer {
       signal?.addEventListener("abort", onAbort, { once: true });
 
       ws.on("open", () => {
+        opened = true;
         // sherpa-onnx offline WS binary protocol:
         // [int32LE sample_rate][int32LE num_audio_bytes][float32 samples...]
         const message = Buffer.alloc(8 + samplesBuffer.length);
@@ -608,6 +611,19 @@ class ParakeetWsServer {
       ws.on("error", (error) => {
         clearTimeout(timeout);
         signal?.removeEventListener("abort", onAbort);
+        // A reset during the handshake can otherwise drop a whole recording.
+        // No audio has been sent yet, so reconnect once to the same live model.
+        if (
+          retryHandshake &&
+          !opened &&
+          error.code === "ECONNRESET" &&
+          !signal?.aborted &&
+          this.ready &&
+          this.process === serverProcess
+        ) {
+          resolve(this._transcribeOffline(samplesBuffer, sampleRate, signal, false));
+          return;
+        }
         reject(new Error(`parakeet-ws transcription failed: ${error.message}`));
       });
     });

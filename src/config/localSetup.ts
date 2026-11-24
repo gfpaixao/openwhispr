@@ -355,7 +355,7 @@ const TEXT_MODES_OFF_DEVICE: InferenceMode[] = [
 
 export function buildLocalSetupPlan(input: {
   profile: ComputerProfile;
-  spokenLanguages: string[]; // settings.spokenLanguages; [] for guests
+  spokenLanguages: string[];
   policy: PolicyDecisionSnapshot;
   requiredSpeechModelId?: string; // first org-required speech model, if any
 }): LocalSetupPlan {

@@ -360,19 +360,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       planLocalSetup({
         profile: computerProfile,
         policy,
-        guest: session.authPath === "guest",
         spokenLanguages: settings.spokenLanguages,
         requiredModelIds: requiredModels.required,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the catalog changes in place; its version is the signal
-    [
-      computerProfile,
-      policy,
-      requiredModels.required,
-      session.authPath,
-      settings.spokenLanguages,
-      registryVersion,
-    ]
+    [computerProfile, policy, requiredModels.required, settings.spokenLanguages, registryVersion]
   );
   // A policy refresh that is loading or failed must not take a built plan away:
   // the step would unmount and cancel its downloads. The last plan stands until a

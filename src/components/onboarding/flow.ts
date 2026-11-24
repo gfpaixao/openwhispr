@@ -247,7 +247,13 @@ export function getOnboardingRoute(context: OnboardingRouteContext): OnboardingS
         // finalizeOnboarding registers dictationHotkey either way, and skipping
         // these steps shipped users who neither granted the mic nor knew their
         // trigger key.
-        (["auth", "permissions", "dictation-hotkey", "setup-choice"] as OnboardingStepId[])
+        ([
+          "auth",
+          "permissions",
+          "languages",
+          "dictation-hotkey",
+          "setup-choice",
+        ] as OnboardingStepId[])
       : [
           ...ACCOUNT_ROUTE,
           ...(context.agentAllowed

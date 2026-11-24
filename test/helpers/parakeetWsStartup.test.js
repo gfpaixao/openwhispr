@@ -35,6 +35,48 @@ function loadHelper(name, mocks, appProcess = process) {
   return module.exports;
 }
 
+test("offline transcription reconnects once only when a reset precedes the audio", async () => {
+  for (const scenario of ["recover", "reset-twice", "reset-after-open"]) {
+    let connections = 0;
+    let audioFrames = 0;
+    const reset = () => Object.assign(new Error("socket hang up"), { code: "ECONNRESET" });
+    class MockSocket extends EventEmitter {
+      constructor() {
+        super();
+        connections++;
+        process.nextTick(() => {
+          if (scenario === "reset-twice" || (scenario === "recover" && connections === 1)) {
+            this.emit("error", reset());
+            this.emit("close", 1006);
+          } else {
+            this.emit("open");
+          }
+        });
+      }
+      send(frame) {
+        if (frame === "Done") return this.emit("close", 1000);
+        audioFrames++;
+        if (scenario === "reset-after-open") {
+          this.emit("error", reset());
+          this.emit("close", 1006);
+        } else {
+          this.emit("message", JSON.stringify({ text: "bom dia" }));
+        }
+      }
+    }
+    const Server = loadHelper("parakeetWsServer", { ws: MockSocket });
+    const server = new Server();
+    server.port = 6006;
+    server.ready = true;
+    server.process = {};
+    const result = server.transcribe(Buffer.alloc(6400), 16000);
+    if (scenario === "recover") assert.equal((await result).text, "bom dia");
+    else await assert.rejects(result, /socket hang up/);
+    assert.equal(connections, scenario === "reset-after-open" ? 1 : 2, scenario);
+    assert.equal(audioFrames, scenario === "reset-twice" ? 0 : 1, scenario);
+  }
+});
+
 async function startupArgs(modelName, runtime = "offline", language = null, registry = modelData) {
   const calls = [];
   const modelInfo = loadHelper("parakeetModelInfo", {

@@ -113,13 +113,14 @@ test("onboarding sizes the window from the current step", () => {
   assert.match(source, /setOnboardingWindowMode\?\.\(windowMode\);\s*\}, \[windowMode\]\);/);
 });
 
-test("guest flow keeps permissions and the hotkey before setup choice", async () => {
+test("guests select their spoken languages before choosing a transcription model", async () => {
   const { getOnboardingRoute } = await load();
   // finalizeOnboarding registers the dictation hotkey on every path, so guests
   // must still grant the mic and see the key they are getting.
   assert.deepEqual(getOnboardingRoute({ authPath: "guest", setupMode: null, agentAllowed: true }), [
     "auth",
     "permissions",
+    "languages",
     "dictation-hotkey",
     "setup-choice",
   ]);
@@ -137,7 +138,15 @@ test("setup choice appends the selected two-stage BYOK route", async () => {
   const { getOnboardingRoute } = await load();
   assert.deepEqual(
     getOnboardingRoute({ authPath: "guest", setupMode: "byok", agentAllowed: true }),
-    ["auth", "permissions", "dictation-hotkey", "setup-choice", "byok-dictation", "byok-assistant"]
+    [
+      "auth",
+      "permissions",
+      "languages",
+      "dictation-hotkey",
+      "setup-choice",
+      "byok-dictation",
+      "byok-assistant",
+    ]
   );
 });
 
@@ -152,7 +161,7 @@ test("choosing local appends one step", async () => {
   );
   assert.deepEqual(
     getOnboardingRoute({ authPath: "guest", setupMode: "local", agentAllowed: true }),
-    ["auth", "permissions", "dictation-hotkey", "setup-choice", "local-setup"]
+    ["auth", "permissions", "languages", "dictation-hotkey", "setup-choice", "local-setup"]
   );
   assert.equal(route.includes("local-dictation"), false);
   assert.equal(route.includes("local-assistant"), false);
@@ -522,17 +531,16 @@ test("progress total tracks the conditional parts of the route", async () => {
 
 test("progress counts only the guest steps that draw a footer", async () => {
   const { getOnboardingProgress, getOnboardingRoute } = await load();
-  // auth and permissions are compact, so the pre-plan guest route counts
-  // dictation-hotkey and setup-choice: a two-dot row.
+  // Auth and permissions use a compact frame without the progress footer.
   const guest = getOnboardingRoute({ authPath: "guest", setupMode: null, agentAllowed: true });
-  assert.deepEqual(getOnboardingProgress("setup-choice", guest), { index: 1, total: 2 });
+  assert.deepEqual(getOnboardingProgress("setup-choice", guest), { index: 2, total: 3 });
 
   const guestByok = getOnboardingRoute({
     authPath: "guest",
     setupMode: "byok",
     agentAllowed: true,
   });
-  assert.deepEqual(getOnboardingProgress("setup-choice", guestByok), { index: 1, total: 4 });
+  assert.deepEqual(getOnboardingProgress("setup-choice", guestByok), { index: 2, total: 5 });
 
   // An off-route step has no position to report.
   assert.equal(getOnboardingProgress("notes", guestByok), null);

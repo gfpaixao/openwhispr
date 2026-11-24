@@ -23,7 +23,6 @@ const policy = (status) => ({ status, policy: null, appVersion: null });
 const input = (o) => ({
   profile: mac(),
   policy: policy("unmanaged"),
-  guest: false,
   spokenLanguages: ["de"],
   requiredModelIds: [],
   ...o,
@@ -40,10 +39,22 @@ test("the plan waits for the computer read and a resolved policy", async () => {
   }
 });
 
-test("a guest's plan follows the system language, not stored languages", async () => {
+test("local setup uses the spoken language on an English computer", async () => {
   const { planLocalSetup } = await load();
-  const plan = planLocalSetup(input({ guest: true, profile: mac({ systemLanguages: ["fr"] }) }));
-  assert.deepEqual(plan.languages, ["fr"]);
+  const plan = planLocalSetup(input({ spokenLanguages: ["pt-BR"] }));
+  assert.deepEqual(plan.languages, ["pt"]);
+  const speechModel = plan.rows.find((row) => row.id === "dictation");
+  const catalog = require("../../src/models/modelRegistryData.json");
+  assert.ok(
+    catalog.whisperModels[speechModel.modelId] ||
+      catalog.parakeetModels[speechModel.modelId]?.supportedLanguages.includes("pt")
+  );
+});
+
+test("local setup falls back to system languages when none were selected", async () => {
+  const { planLocalSetup } = await load();
+  const plan = planLocalSetup(input({ spokenLanguages: [] }));
+  assert.deepEqual(plan.languages, ["en"]);
 });
 
 test("the first required speech model replaces the pick", async () => {
