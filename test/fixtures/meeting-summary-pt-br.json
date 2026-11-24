@@ -1,0 +1,34 @@
+{
+  "description": "Synthetic Brazilian Portuguese operations meeting. All people, numbers and decisions are fictional.",
+  "prompt": "Escreva uma ata executiva em português do Brasil, com até 180 palavras. Registre as decisões, os números que importam, as tarefas com responsáveis e prazos e o que ficou em aberto. Use apenas informações da reunião e leve em conta as correções feitas durante a conversa. Entregue somente a ata.",
+  "transcript": [
+    "Marina: Vamos fechar o piloto de confirmação de consultas. Anotei quatorze faltas na semana passada em Formosa. É isso, Caio?",
+    "Caio: Eu também achei que eram quatorze quando olhei a primeira planilha. Duas pessoas remarcaram dentro do prazo e entraram em duplicidade. Depois da conferência, foram doze faltas em quarenta consultas agendadas. Em Brasília temos outro volume, então prefiro não misturar os dados.",
+    "Nádia: A recepção tinha perguntado se começa na sexta, dia 27, nas duas unidades. Tem gente segurando horário para treinamento.",
+    "Marina: Sexta é só a entrega da lista. O piloto começa na segunda, 30 de novembro, dura duas semanas e vai rodar somente em Formosa. Vamos usar o WhatsApp que a recepção já tem. A proposta de contratar uma plataforma fica para depois.",
+    "Caio: E os novecentos reais da apresentação? Se eu dividir por duas semanas, dá para encaixar.",
+    "Marina: Aquilo foi uma estimativa antiga. O teto aprovado é de seiscentos reais somando as duas semanas. O que vai dizer se funcionou é chegar a, no máximo, oito faltas para cada quarenta consultas. A gente olha a proporção se o número de agendamentos variar.",
+    "Nádia: Certo. Eu mando o texto da mensagem de confirmação para a recepção até quinta, 26 de novembro, às quatro da tarde. O nosso número continua o mesmo. A ideia de também fazer ligação pode esperar.",
+    "Caio: Eu fico com a lista sem duplicados e entrego na sexta, 27 de novembro, até meio-dia. Para entrar na lista, a pessoa precisa já ter autorizado o contato por WhatsApp. Vou deixar de fora quem ainda não respondeu sobre isso.",
+    "Nádia: Então, se a meta bater, já aviso Brasília para copiar a rotina na semana seguinte?",
+    "Marina: Segura esse aviso. Eu vou revisar o resultado em 14 de dezembro. Mesmo se atingirmos a meta, a expansão para Brasília só será decidida nessa revisão. Por enquanto, a única unidade confirmada é Formosa."
+  ],
+  "scoring": {
+    "complete": "1 ponto se a informação estiver completa e correta, mesmo com outra redação.",
+    "partial": "0,5 se houver informação correta, mas faltar parte relevante, como a hora de entrega.",
+    "missingOrContradicted": "0 se o fato estiver ausente ou se a resposta o contradisser.",
+    "additionalErrors": "Registre separadamente qualquer decisão, número, responsável ou prazo inventado."
+  },
+  "reference": [
+    "Escopo do piloto: exclusivamente Formosa.",
+    "Calendário do piloto: início em 30/11 e duração de duas semanas.",
+    "Linha de base corrigida: 12 faltas em 40 consultas.",
+    "Meta: no máximo 8 faltas por 40 consultas.",
+    "Canal: WhatsApp já existente; contratação de nova plataforma adiada.",
+    "Orçamento: teto de R$ 600 para o piloto inteiro.",
+    "Nádia entrega o texto da mensagem à recepção até 26/11 às 16h.",
+    "Caio entrega a lista sem duplicados até 27/11 ao meio-dia.",
+    "Somente pessoas que já autorizaram contato por WhatsApp entram na lista.",
+    "Marina revisa em 14/12 e a expansão para Brasília depende dessa decisão."
+  ]
+}
